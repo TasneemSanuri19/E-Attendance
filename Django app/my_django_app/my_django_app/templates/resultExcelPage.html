@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Result Excel Page</title>
+    <style>
+         button {
+          background-color: #6990F2;
+          color: white;
+          border: none;
+          width: 200px;
+          padding: 10px 20px;
+          cursor: pointer;
+          transition: background-color 0.2s ease-in-out;
+          margin-left: 50px;
+        }
+        body {
+            background-color: #f4f5fb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+            .white-box {
+        width: 300px;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 7px 7px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .file-name {
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .download-button {
+        display: block;
+        width: 100%;
+        text-align: center;
+        margin-top: 20px;
+    }
+</style>
+</head>
+<body>
+    <div class="white-box">
+        <div class="file-name">
+            <img height="45px" width="45px" src="https://www.investopedia.com/thmb/RaxzKE6Bgmh1uzjH6EOFhMMHYX0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/excel_ms-5bfc379146e0fb00511cdefe.jpg" class="file-icon" />
+            <p>{{ excel_file_path }}</p>
+        </div>
+        <div>
+            <button type="button" id="downloadButton">Download</button>
+        </div>
+    </div>
+</body>
+<script>
+    document.getElementById('downloadButton').addEventListener('click', function() {
+  var excelFilePath = '{{ excel_file_path }}';
+  var downloadLink = document.createElement('a');
+  downloadLink.href = '{% url "download_excel" %}?file_path=' + encodeURIComponent(excelFilePath);
+  downloadLink.download = 'attendance.csv';
+  downloadLink.click();
+});
+
+</script>
+</html>

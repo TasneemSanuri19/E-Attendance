@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>eAttendanceHomeScreen</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: "Poppins", sans-serif;
+        }
+        body {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          background: #f4f5fb;
+        }
+        .top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: #fff;
+  box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1);
+  padding: 10px 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+        .logo {
+          margin-right: 10px;
+        }
+        .logo img {
+          height: 30px;
+          width: 30px;
+        }
+        .title {
+          font-size: 20px;
+            color: #464855;
+          font-weight: bold;
+        }
+        .wrapper {
+          width: 430px;
+          background: #fff;
+          border-radius: 5px;
+          padding: 30px;
+          box-shadow: 7px 7px 12px rgba(0, 0, 0, 0.05);
+          margin-top: 20px;
+        }
+        .wrapper header {
+          color: #464855;
+          font-size: 27px;
+          font-weight: 600;
+          text-align: center;
+        }
+        .wrapper form {
+          height: 167px;
+          display: flex;
+          cursor: pointer;
+          margin: 30px 0;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          border-radius: 5px;
+          border: 2px dashed #464855;
+        }
+        form :where(i, p) {
+          color: #6990F2;
+        }
+        form i {
+          font-size: 50px;
+        }
+        form p {
+          margin-top: 15px;
+          font-size: 16px;
+        }
+        section .row {
+          margin-bottom: 10px;
+          background: #E9F0FF;
+          list-style: none;
+          padding: 15px 20px;
+          border-radius: 5px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        section .row i {
+          color: #6990F2;
+          font-size: 30px;
+        }
+        section .details span {
+          font-size: 14px;
+        }
+        .progress-area .row .content {
+          width: 100%;
+          margin-left: 15px;
+        }
+        .progress-area .details {
+          display: flex;
+          align-items: center;
+          margin-bottom: 7px;
+          justify-content: space-between;
+        }
+        .progress-area .content .progress-bar {
+          height: 6px;
+          width: 100%;
+          margin-bottom: 4px;
+          background: #fff;
+          border-radius: 30px;
+        }
+        .content .progress-bar .progress {
+          height: 100%;
+          width: 0%;
+          background: #6990F2;
+          border-radius: inherit;
+        }
+        .uploaded-area {
+          max-height: 232px;
+          overflow-y: scroll;
+        }
+        .uploaded-area.onprogress {
+          max-height: 150px;
+        }
+        .uploaded-area::-webkit-scrollbar {
+          width: 0px;
+        }
+        .uploaded-area .row .content {
+          display: flex;
+          align-items: center;
+        }
+        .uploaded-area .row .details {
+          display: flex;
+          margin-left: 15px;
+          flex-direction: column;
+        }
+        .uploaded-area .row .details .size {
+          color: #404040;
+          font-size: 11px;
+        }
+        .uploaded-area i.fa-check {
+          font-size: 16px;
+        }
+
+          .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        display: none;
+      }
+
+      .loader {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60px;
+        height: 60px;
+        border: 6px solid #f3f3f3;
+        border-top-color: #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        z-index: 10000;
+        display: none;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: translate(-50%, -50%) rotate(0deg);
+        }
+        100% {
+          transform: translate(-50%, -50%) rotate(360deg);
+        }
+      }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+</head>
+<body>
+  <div class="overlay"></div>
+  <div class="loader"></div>
+  <div class="top-bar">
+    <div class="logo">
+      <img height="50px" width="50px" src="https://celsjpu.psut.edu.jo/sites/default/files/PSUTT.png" class="file-icon" />
+    </div>
+    <div class="title">Princess Sumaya University For Technology - E Attendance System</div>
+  </div>
+  <div class="wrapper">
+    <header>Upload Lecture Videos</header>
+    <form>
+      <input class="file-input" type="file" name="file" hidden>
+      <i class="fas fa-cloud-upload-alt"></i>
+      <p>Browse File to Upload</p>
+    </form>
+    <section class="progress-area"></section>
+    <section class="uploaded-area"></section>
+  </div>
+
+<script>
+    const form = document.querySelector("form");
+    const fileInput = document.querySelector(".file-input");
+    const progressArea = document.querySelector(".progress-area");
+    const uploadedArea = document.querySelector(".uploaded-area");
+    const overlay = document.querySelector('.overlay');
+    const loader = document.querySelector('.loader');
+
+    // form click event
+    form.addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    fileInput.onchange = ({ target }) => {
+      let file = target.files[0];
+      if (file) {
+        let fileName = file.name;
+        if (fileName.length >= 12) {
+          let splitName = fileName.split('.');
+          fileName = splitName[0].substring(0, 13) + "... ." + splitName[1];
+        }
+        uploadFile(fileName);
+      }
+    }
+
+    let count = 0;
+
+    function uploadFile(name) {
+      if (count >= 2) return;
+      count++;
+      const csrftoken = getCookie('csrftoken');
+      let xhr = new XMLHttpRequest();
+
+      if (count === 1) {
+        xhr.open("POST", "http://127.0.0.1:8000/checkAttendanceFromVideoOne/");
+      } else if (count === 2) {
+        xhr.open("POST", "http://127.0.0.1:8000/checkAttendanceFromVideoTwo/");
+      }
+
+      xhr.upload.addEventListener("progress", ({ loaded, total }) => {
+        let fileLoaded = Math.floor((loaded / total) * 100);
+        let fileTotal = Math.floor(total / 1000);
+        let fileSize;
+
+        fileTotal < 1024 ? fileSize = fileTotal + " KB" : fileSize = (loaded / (1024 * 1024)).toFixed(2) + " MB";
+
+        let progressHTML = `<li class="row">
+                          <i class="fas fa-file-alt"></i>
+                          <div class="content">
+                            <div class="details">
+                              <span class="name">${name} • Uploading</span>
+                              <span class="percent">${fileLoaded}%</span>
+                            </div>
+                            <div class="progress-bar">
+                              <div class="progress" style="width: ${fileLoaded}%"></div>
+                            </div>
+                          </div>
+                        </li>`;
+
+        uploadedArea.classList.add("onprogress");
+        progressArea.innerHTML = progressHTML;
+
+        if (loaded == total) {
+          progressArea.innerHTML = "";
+          let uploadedHTML = `<li class="row">
+                            <div class="content upload">
+                              <i class="fas fa-file-alt"></i>
+                              <div class="details">
+                                <span class="name">${name} • Uploaded</span>
+                                <span class="size">${fileSize}</span>
+                              </div>
+                            </div>
+                            <i class="fas fa-check"></i>
+                          </li>`;
+          uploadedArea.classList.remove("onprogress");
+          uploadedArea.insertAdjacentHTML("afterbegin", uploadedHTML);
+        }
+        if (this.status === 200) {
+            if (count === 2) {
+             var response = JSON.parse(xhr.responseText);
+             var attendanceFilePath = response.attendance_file_path;
+             renderResultPage(attendanceFilePath);
+             overlay.style.display = 'none';
+             loader.style.display = 'none';
+             }
+         }
+      });
+
+
+
+      xhr.onreadystatechange = function() {
+      if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200 && count === 2) {
+          var response = JSON.parse(xhr.responseText);
+          if(response.hasOwnProperty('attendance_file_path')){
+              var attendanceFilePath = response.attendance_file_path;
+              window.location.href = '{% url "result_excel_page" %}' + `?file_path=${attendanceFilePath}`;
+          }
+        } else {
+          // Handle error
+        }
+      }
+    };
+
+      let data = new FormData(form);
+      xhr.setRequestHeader('X-CSRFToken', csrftoken)
+        xhr.send(data);
+        if(count === 2){
+            overlay.style.display = 'block';
+            loader.style.display = 'block';
+        }
+
+    }
+
+    function renderResultPage(attendanceFilePath) {
+  // Update the HTML page with the file path
+  var fileElement = document.querySelector('.file-name p');
+  fileElement.textContent = attendanceFilePath;
+
+  // Generate the download link
+  var downloadLink = document.querySelector('.download-button');
+  downloadLink.href = '/resultExcelPage?file_path=' + encodeURIComponent(attendanceFilePath);
+}
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+  </script>
+</body>
+</html>
